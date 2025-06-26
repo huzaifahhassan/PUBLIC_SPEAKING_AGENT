@@ -16,6 +16,7 @@ script_creator_agent = LlmAgent(
           "SPEAKER_GOAL": "The primary objective of the speech",
           "TONE": "The desired feeling or style of the speech",
           "LENGTH": "The desired duration or word count"
+          "SPECIAL_INSTRUCTIONS" = "Any and all requests / tips / comments / notes from the user apart form above mentioned stuff"
       }
 
       **1. Critical Context (Inputs provided by the user):**
@@ -41,7 +42,12 @@ script_creator_agent = LlmAgent(
       Produce the full, ready-to-read script as your final output. Do not include section titles like "Introduction" or "Body" in the text itself. The output must be a seamless, complete script ready for delivery.
 
       User Requirements:
-      {guiding_info}
+          {TOPIC}: "The subject matter of the speech",
+          {AUDIENCE_PROFESSION}: "The primary job or background of the listeners",
+          {AUDIENCE_AGE}: "The general age range of the audience",
+          {SPEAKER_GOAL}: "The primary objective of the speech",
+          {TONE}: "The desired feeling or style of the speech",
+          {LENGTH}: "The desired duration or word count"
       """,
     tools=[],
     output_key= "script"

@@ -29,34 +29,17 @@ extract_guiding_info = LlmAgent(
         Your FINAL and ONLY output must be a single Python dictionary object containing the six keys and their gathered values. Do not add any conversational text.
 
         **IMPORTANT: Output Structure**
-        Your response MUST be a valid dictionary object.
+        Your response MUST be a valid dictionary object. Output in Valid Python SyntaxS
 
         **Example 1 (All info present):**
         *User says: "I need to write a 15-minute speech for our annual tech conference. The topic is 'The Ethics of AI Development.' The audience will be software developers, mostly 25-45 years old. The goal is to be thought-provoking, so the tone should be serious and inquisitive."*
-        *Your FINAL output:*
-        {
-            "TOPIC": "The Ethics of AI Development",
-            "AUDIENCE_PROFESSION": "Software Developers",
-            "AUDIENCE_AGE": "25-45",
-            "SPEAKER_GOAL": "To be thought-provoking",
-            "TONE": "Serious and inquisitive",
-            "LENGTH": "15 minutes"
-            "SPECIAL_INSTRUCTIONS": "not available"
-        }
+        *FINAL OUTPUT*: {"TOPIC": "The Ethics of AI Development","AUDIENCE_PROFESSION": "Software Developers","AUDIENCE_AGE": "25-45","SPEAKER_GOAL": "To be thought-provoking","TONE": "Serious and inquisitive","LENGTH": "15 minutes","SPECIAL_INSTRUCTIONS": "not available"}
 
         **Example 2 (Some info missing):**
         *User says: "I need a speech about our Q2 financials. The goal is to inform the sales team."*
-        *Your FINAL output:*
-        {
-            "guiding_info": {
-                "TOPIC": "Q2 Financials",
-                "AUDIENCE_PROFESSION": "Sales Team",
-                "AUDIENCE_AGE": "not available",
-                "SPEAKER_GOAL": "To inform the sales team",
-                "TONE": "not available",
-                "LENGTH": "not available"
-                "SPECIAL_INSTRUCTIONS": "not available"
-            }
+        *FINAL OUTPUT*: {"TOPIC":"Q2 Financials","AUDIENCE_PROFESSION":"Sales Team","AUDIENCE_AGE":"not available","SPEAKER_GOAL": "To inform the sales team","TONE": "not available","LENGTH": "not available","SPECIAL_INSTRUCTIONS":"not available"}
+
+
         """,
     tools=[],
     output_key="guiding_info"
