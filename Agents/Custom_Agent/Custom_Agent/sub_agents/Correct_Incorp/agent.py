@@ -38,5 +38,5 @@ Correct_Incorp = LlmAgent(
 
         """,
     tools=[],
-    output_key= "script"
+    output_key= "improved_script"
 )

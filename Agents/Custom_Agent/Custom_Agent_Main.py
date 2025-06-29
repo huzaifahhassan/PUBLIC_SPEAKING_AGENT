@@ -4,6 +4,9 @@ from  Custom_Agent.sub_agents.judge1.agent import judge1
 from  Custom_Agent.sub_agents.judge2.agent import judge2
 from  Custom_Agent.sub_agents.judge3.agent import judge3
 from  Custom_Agent.sub_agents.Correct_Incorp.agent import Correct_Incorp
+from  Custom_Agent.sub_agents.fact_checker.agent import fact_checker
+from  Custom_Agent.sub_agents.note_adder.agent import note_adder
+from  Browser_Search.simple_crawl4ai import url_runner
 
 # Full runnable code for the StoryFlowAgent example
 import logging
@@ -43,11 +46,10 @@ logger = logging.getLogger(__name__)
 #=====================================================================================================
 class script_creator(BaseAgent):
     """
-    Custom agent for a story generation and refinement workflow.
+    Custom agent for a script generation and refinement workflow.
 
     This agent orchestrates a sequence of LLM agents to generate a story,
-    critique it, revise it, check grammar and tone, and potentially
-    regenerate the story if the tone is negative.
+    critique it, revise it, check grammar and tone.
     """
 
     # --- Field Declarations for Pydantic ---
@@ -58,6 +60,8 @@ class script_creator(BaseAgent):
     judge2: LlmAgent
     judge3: LlmAgent
     improver_agent : LlmAgent
+    note_adder : LlmAgent
+    fact_checker : LlmAgent
 
     loop_agent: LoopAgent
     #sequential_agent: SequentialAgent
@@ -75,9 +79,12 @@ class script_creator(BaseAgent):
         judge2: LlmAgent,
         judge3: LlmAgent,
         improver_agent : LlmAgent,
+        note_adder : LlmAgent,
+        fact_checker : LlmAgent,
     ):
         """
         Initializes the ps_coach.
+        
 
         Args:
             name: Name of the root agent.
@@ -87,12 +94,14 @@ class script_creator(BaseAgent):
             judge2: logic and clarity and structure judge agent
             judge3: factuality and accuracy judge agent
             Correct_Incorp : critical incorporation agent
+            note_adder : Adds helper notes to the final script
+            fact_checker : checks facts and corrects if needed
         """
         # Create internal agents *before* calling super().__init__
 
         parallel_agent = ParallelAgent(
             name="parallel_agent",
-            sub_agents=[judge1, judge2, judge3]
+            sub_agents=[judge1, judge2]
         )
 
         loop_agent = LoopAgent(
@@ -106,17 +115,21 @@ class script_creator(BaseAgent):
             extract_guiding_info,
             script_creator_agent,
             loop_agent,
+            note_adder,
+            fact_checker
         ]
 
         # Pydantic will validate and assign them based on the class annotations.
         super().__init__(
             name=name,
-            script_creator_agent=script_creator_agent,
+            script_creator_agent = script_creator_agent,
             extract_guiding_info=extract_guiding_info,
             judge1=judge1,
             judge2=judge2,
             judge3=judge3,
             improver_agent=improver_agent,
+            fact_checker = fact_checker,
+            note_adder=note_adder,
             parallel_agent=parallel_agent,
             loop_agent=loop_agent,
             sub_agents=sub_agents_list, # Pass the sub_agents list directly
@@ -139,7 +152,7 @@ class script_creator(BaseAgent):
         # 1. Initial Guideline Extractor
         logger.info(f"[{self.name}] Running Extractor...")
         async for event in self.extract_guiding_info.run_async(ctx):
-            logger.info(f"[{self.name}] Event from Extractor: {event.model_dump_json(indent=2 , exclude_none=True)}")
+            #logger.info(f"[{self.name}] Event from Extractor: {event.model_dump_json(indent=2 , exclude_none=True)}")
             yield event
 
 
@@ -169,36 +182,123 @@ class script_creator(BaseAgent):
         logger.info(f"[{self.name}] Running Script Creator Agent...")
         # Running the script creator
         async for event in self.script_creator_agent.run_async(ctx):
-            logger.info(f"[{self.name}] Event from Script Creator Agent: {event.model_dump_json(indent=2, exclude_none=True)}")
+            #logger.info(f"[{self.name}] Event from Script Creator Agent: {event.model_dump_json(indent=2, exclude_none=True)}")
             yield event
 
-        print("Sleeping for 10 seconds")
-        time.sleep(10)
-        print("Waking up after 10 seconds")
+        # How to add a time Delay
+        # print("Sleeping for 10 seconds")
+        # time.sleep(10)
+        # print("Waking up after 10 seconds")
 
-        # 3. Loop Agent for Critic and Improver
-        logger.info(f"[{self.name}] Running Loop Agent...")
-        # Use the loop_agent instance attribute assigned during init
-        async for event in self.loop_agent.run_async(ctx):
-            logger.info(f"[{self.name}] Event from PostProcessing: {event.model_dump_json(indent=2, exclude_none=True)}")
-            yield event
+        # Custom Looping Agent with While Loop
+        while True:
 
-        # We will add logic later
+            # Coubt of the No. of Iterations
+            COUNTER = 1
 
-        # # 4. Tone-Based Conditional Logic
-        # tone_check_result = ctx.session.state.get("tone_check_result")
-        # logger.info(f"[{self.name}] Tone check result: {tone_check_result}")
+            # 3. RUNNING PARALLEL JUDGE AGENT
+            logger.info(f"[{self.name}] Running Parallel Judge Agent...")
+            async for event in self.parallel_agent.run_async(ctx):
+                #logger.info(f"[{self.name}] Event from Parallel: {event.model_dump_json(indent=2, exclude_none=True)}")
+                yield event
 
-        # if tone_check_result == "negative":
-        #     logger.info(f"[{self.name}] Tone is negative. Regenerating story...")
-        #     async for event in self.story_generator.run_async(ctx):
-        #         logger.info(f"[{self.name}] Event from StoryGenerator (Regen): {event.model_dump_json(indent=2, exclude_none=True)}")
-        #         yield event
-        # else:
-        #     logger.info(f"[{self.name}] Tone is not negative. Keeping current story.")
-        #     pass
+            # GETTING ALL CRITIQUES AS STRING (Not Used Yet)
+            critique1 = raw_guiding_info_str = ctx.session.state.get("critique_j1")
+            critique2 = raw_guiding_info_str = ctx.session.state.get("critique_j2")
 
-        # logger.info(f"[{self.name}] Workflow finished.")
+            # 4. RUNNING Improver JUDGE AGENT
+            logger.info(f"[{self.name}] Running Improver Agent...")
+            async for event in self.improver_agent.run_async(ctx):
+                #logger.info(f"[{self.name}] Event from Improver Agent: {event.model_dump_json(indent=2, exclude_none=True)}")
+                yield event
+
+           # 5. RUNNING FACT EXTRACTOR JUDGE AGENT
+            logger.info(f"[{self.name}] Running FACT CHECKING Judge Agent...")
+            async for event in self.judge3.run_async(ctx):
+                #logger.info(f"[{self.name}] Event from Judge3: {event.model_dump_json(indent=2, exclude_none=True)}")
+                yield event
+
+            # EXTRACTING FACTS AND STORING IN LIST
+            critique3 = raw_guiding_info_str = ctx.session.state.get("critique_j3")
+            critique3 = ast.literal_eval(critique3.strip().replace("```json", "").replace("```", "").strip())
+            unverified_facts = critique3["global_facts"]
+
+            # LIST OF FACTS
+            facts = []
+            for i in range(len(unverified_facts)):
+                # global_fact_1 (key format)
+                key = "global_fact_" + str(i+1)
+                facts.append(unverified_facts[key])
+
+            # LIST OF WEB RESULTS (A LIST OF LIST) EACH SUB LIST CONTAINS FIVE RESULTS FOR EACH QUERY
+            web_content = []
+            for i in range(len(facts)):
+                content = url_runner(facts[i])
+                content = await content
+                web_content.append(content)
+
+            print("Extracted Web Content: " , web_content)
+
+            # Making a Dictionary ( key (fact to be checked) : value (web results))
+            facts_and_web_research = {}
+            for i in range(len(web_content)):
+                key = "global_fact_" + str(i+1)
+                fact = unverified_facts[key]
+                value = web_content[i]
+                combined_value = ' '.join(value)
+                facts_and_web_research[fact] = combined_value
+
+            ctx.session.state["facts_and_web_research"] = facts_and_web_research
+
+            # 5. RUNNING FACT CHECKING AND CORRECTOR AGENT
+            logger.info(f"[{self.name}] Running FACT CHECKING Judge Agent...")
+            async for event in self.fact_checker.run_async(ctx):
+                #logger.info(f"[{self.name}] Event from fact_checker: {event.model_dump_json(indent=2, exclude_none=True)}")
+                yield event
+
+
+            # 6. HUMAN IN LOOP
+            # Response = "more" (Decent but can be improved, Go another turn)
+            # Response = "good" (Decent enough. Give the script to the User)
+            print("######################################################################")
+            print("Here is the IMPROVED Script:")
+            improved_script = ctx.session.state.get("script")
+            print("START OF SCRIPT")
+            print({improved_script})
+            print("END OF SCRIPT")
+            print("")
+            print("######################################################################")
+            print("Here is the FACT CHECKED Script:")
+            fact_checked = ctx.session.state.get("improved_script")
+            print("START OF SCRIPT")
+            print({fact_checked})
+            print("END OF SCRIPT")
+            print("")
+            print("######################################################################")  
+            print("Give Your Feedback\n Response = 'more' (Decent but can be improved, Go another turn\n Response = 'good' (Decent enough. Give the script to the User) ")
+            feedback = input("Your Feedback:")
+
+            if feedback == "more":
+                continue
+
+            elif feedback == "good":
+                # RUNNING Note Adder AGENT
+                logger.info(f"[{self.name}] Running Note Adder Agent...")
+                async for event in self.note_adder.run_async(ctx):
+                    #logger.info(f"[{self.name}] Event from Improver Agent: {event.model_dump_json(indent=2, exclude_none=True)}")
+                    yield event
+
+                script_with_notes = ctx.session.state.get("script_with_notes")
+
+                # Saving Script to File
+                text_file = open("Script_With_Notes.txt", "w")
+                text_file.write(script_with_notes)
+                text_file.close()
+                break
+
+            else:
+                print("Error")
+                break        
 
 #=====================================================================================================
 # CREATING SESSION, RUNNER AND CUSTOM AGENT INSTANCE
@@ -212,7 +312,9 @@ script_creator_agent_instance = script_creator(
     judge1=judge1,
     judge2=judge2,
     judge3=judge3,
-    improver_agent=Correct_Incorp
+    improver_agent=Correct_Incorp,
+    fact_checker= fact_checker,
+    note_adder=note_adder,
 )
 
 # --- Setup Runner and Session ---
@@ -252,19 +354,19 @@ def call_agent(prompt:str):
     final_response = "No final response captured."
     for event in events:
         if event.is_final_response() and event.content and event.content.parts:
-            logger.info(f"Potential final response from [{event.author}]: {event.content.parts[0].text}")
+            #logger.info(f"Potential final response from [{event.author}]: {event.content.parts[0].text}")
             final_response = event.content.parts[0].text
 
-    print("\n--- Agent Interaction Result ---")
-    print("Agent Final Response: ", final_response)
+    #print("\n--- Agent Interaction Result ---")
+    #print("Agent Final Response: ", final_response)
 
     final_session = session_service.get_session(app_name=APP_NAME, 
                                                 user_id=USER_ID, 
                                                 session_id=SESSION_ID)
-    print("Final Session State:")
+    #print("Final Session State:")
     import json
-    print(json.dumps(final_session.state, indent=2))
-    print("-------------------------------\n")
+    #print(json.dumps(final_session.state, indent=2))
+    #print("-------------------------------\n")
 
 # --- Run the Agent ---
-call_agent("I am giving a talk on global warming. The audience will be of the age 20-50 and all professional. It should be just 2 mins long and professional and informative. ")
+call_agent("I am giving a talk on boosting productivity for modern office work. The audience will be of the age 20-50 and all professional. It should be just 2 mins long and professional and informative. ")

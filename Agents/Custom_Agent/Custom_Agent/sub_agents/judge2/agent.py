@@ -32,15 +32,16 @@ judge2 = LlmAgent(
 
     ---
     ### **Output Format:**
-    You MUST provide your feedback as a list of numbered points. For each point, use the following format:
+    You MUST provide your feedback as a list. Each critique will be represented by one dictionary in the list. The key of each dictionary in the list will be an integer starting from zero. For value of each dictionary, use the following format:
 
     * **Issue:** A brief, bolded title for the problem (e.g., **Logical Gap**, **Unclear Sentence**, **Weak Transition**, **Mismatched Language**).
     * **Quote:** The exact text segment from the script that contains the issue.
-    * **Suggestion:** A clear and concrete recommendation for how to fix the issue.
+    * **Suggestion:** A clear and concrete recommendation for how to fix the issue to better resonate with the audience.
 
     ---
     ### **Final Instruction:**
-    After the numbered list, provide a single, one-sentence summary of the script's primary structural strength and its main weakness regarding clarity or logic. **DO NOT** rewrite the script yourself. Your only function is to provide structural critique.
+    The last value in the list will be a single string, one-sentence summary of the script's persuasive strengths and weaknesses in relation to its intended audience and goal. **DO NOT** rewrite the script yourself. Your only function is to provide strategic critique.
+
 
     ---
     ### **Inputs You Will Receive:**

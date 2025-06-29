@@ -61,7 +61,7 @@ judge3 = LlmAgent(
         ---
         ### **Input You Will Receive:**
 
-        **1. {script}:**
+        **1. {improved_script}:**
         This is the complete text of the speech you need to analyze.
         """,
     tools=[],
