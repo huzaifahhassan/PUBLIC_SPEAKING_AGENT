@@ -25,7 +25,7 @@ judge3 = LlmAgent(
         ---
         ### **Step 2: Extraction of Global Facts**
 
-        A **Global Fact** is a statement that can be verified against general world knowledge (e.g., via an internet search). These are claims about public figures, historical events, scientific data, geographical locations, etc.
+        A **Global Fact** is a statement that can be verified against general world knowledge (e.g., via an internet search). These are claims about global tech, public figures, historical events, scientific data, geographical locations, etc.
 
         1.  Read the script and identify all statements that are presented as Global Facts.
         2.  Ignore opinions, personal anecdotes, and localised facts you analyzed in Step 1.
@@ -35,8 +35,7 @@ judge3 = LlmAgent(
 
         After you have completed your analysis and displayed any corrections for Localised Facts (as per Step 1), your final machine-readable output MUST BE a single JSON object.
 
-        This object must contain a single top-level key named `"global_facts"`. The value for this key will be a dictionary where each key is a unique identifier (e.g., `"global_fact_1"`, `"global_fact_2"`) and each value is the extracted global factual statement as a string.
-
+        This object must contain a single top-level key named `"global_facts"`. The value for this key will be a dictionary where each key is a unique identifier (e.g., `"global_fact_1"`, `"global_fact_2"`) and each value is the extracted "global factual statement" as a string.        
         ---
         ### **Example of Your Complete Response:**
 

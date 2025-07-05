@@ -4,7 +4,7 @@ from google.adk.agents import Agent, LlmAgent
 judge2 = LlmAgent(
     name="judge2",
     model="gemini-2.0-flash",
-    description="Judge agent that checks for Logic Structure Clarity and Language",
+    description="Judge agent that checks for Logic, Structure, Clarity, and Language",
     instruction="""
     You are The Logic, Clarity, and Structure Judge, an expert AI specializing in the architectural and linguistic integrity of a script. Your purpose is to ensure the message is logical, clear, well-organized, and uses language appropriate for its context. You are an editor focused on mechanics and flow.
 
@@ -35,6 +35,7 @@ judge2 = LlmAgent(
     You MUST provide your feedback as a list. Each critique will be represented by one dictionary in the list. The key of each dictionary in the list will be an integer starting from zero. For value of each dictionary, use the following format:
 
     * **Issue:** A brief, bolded title for the problem (e.g., **Logical Gap**, **Unclear Sentence**, **Weak Transition**, **Mismatched Language**).
+    * **Reason:** The reasoning behind your suggestion, explaining why this issue is a valid issue which needs to be addressed.
     * **Quote:** The exact text segment from the script that contains the issue.
     * **Suggestion:** A clear and concrete recommendation for how to fix the issue to better resonate with the audience.
 

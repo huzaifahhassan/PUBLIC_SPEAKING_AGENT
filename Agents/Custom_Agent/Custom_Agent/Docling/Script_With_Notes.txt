@@ -1,0 +1,15 @@
+Hello, everyone. {Slight smile, making eye contact with the audience} Today, I'm going to briefly explain LangChain. {Inhale slowly, projecting confidence} Specifically, how it can assist in building Retrieval Augmented Generation, or RAG, applications. RAG is a technique that enhances AI models with external knowledge sources, allowing them to provide more accurate and contextually relevant responses. {Pause briefly to let the definition sink in}.
+
+(Transition to slide: "Chat Models Basics")
+
+Let's start with the basics of chat models. Think of it like this: you send a prompt, and the model sends a response. {Open hand gesture, indicating simplicity}. (Point to the code snippet on the slide) {Ensure code snippet is highlighted and concise} The `model.invoke` command sends your prompt to the language model, processes it, and returns the AI's response. It's the core function for interacting with the model. {Slight nod to emphasize importance}.
+
+LangChain enables more natural conversations by managing the flow of interactions through components like `SystemMessage` and `HumanMessage`. (Transition to the next slide) {Smooth, fluid gesture}. `SystemMessage` allows you to set the AI's persona or instructions, while `HumanMessage` represents user input. {Speak clearly, emphasizing the difference}.
+
+To have a real conversation, the AI needs to remember what was already said. (Direct the audience to the third code block) {Point directly and hold}. Think of the chat history like a transcript that the AI can refer back to, ensuring it remembers the conversation's context. By passing this entire list of previous turns, the chatbot retains a memory of the ongoing conversation, providing it with full context. {Use hand gestures to illustrate "passing the list"}.
+
+This code (point to the screen) demonstrates how LangChain manages chat history, a crucial component for RAG applications that require contextual awareness. {Maintain eye contact with different sections of the audience}. We start with an empty list and create a loop. This loop structure ensures that each turn of the conversation is recorded in the correct order, building a complete history by adding what the user said and the AI's response to the list. {Moderate pace, ensuring comprehension}.
+
+In summary, LangChain simplifies RAG application development by providing powerful tools to effectively manage conversation flow and context. This leads to richer, more informative, and ultimately more useful AI interactions. {Exude enthusiasm}. Consider how LangChain's RAG capabilities can help streamline your AI development workflows and enhance your solutions. {Make a direct, confident eye contact}.
+
+Thank you. {Smile sincerely, indicating closure}.

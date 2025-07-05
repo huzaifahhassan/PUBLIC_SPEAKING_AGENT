@@ -2,9 +2,9 @@ from google.adk.agents import LlmAgent
 
 # Create the course support agent
 script_creator_agent = LlmAgent(
-    name="script_creator_agent",
+    name="HIL_Agent",
     model="gemini-2.0-flash",
-    description="Script Creator Agent. Specializes in creating public speaking scripts tailored to the user's needs.",
+    description="HIL_Agent. Specializes in talking to the human and keeoing the Human in Loop running",
     instruction="""
 **Primary Goal:**
 Your main purpose is to create a complete, well-structured, and engaging script. This script must be based on a set of user requirements and a provided presentation document.

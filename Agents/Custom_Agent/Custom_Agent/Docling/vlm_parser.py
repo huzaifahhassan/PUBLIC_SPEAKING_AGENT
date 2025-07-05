@@ -22,10 +22,20 @@ converter = DocumentConverter(
 )
 
 # change current working directory to the location of the sample PDF
-os.chdir("Agents/Docling")
+os.chdir("Agents/Custom_Agent/Custom_Agent/Docling")
 
-source = "sample_pdf.pdf"
+# Document parser function
+def doc_parser(source: str):
+    source = source + ".pdf" if not source.endswith(".pdf") else source
+    markdown_doc = converter.convert(source=source).document.export_to_markdown()
+    print("Parsed Document Markdown: " , markdown_doc)
+    # Saving Script to File
+    text_file = open("Markdown.txt", "w")
+    text_file.write(markdown_doc)
+    text_file.close()
+    return markdown_doc
 
-doc = converter.convert(source=source).document
 
-print(doc.export_to_markdown())
+
+
+

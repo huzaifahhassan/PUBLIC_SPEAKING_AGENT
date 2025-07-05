@@ -6,7 +6,8 @@ from  Custom_Agent.sub_agents.judge3.agent import judge3
 from  Custom_Agent.sub_agents.Correct_Incorp.agent import Correct_Incorp
 from  Custom_Agent.sub_agents.fact_checker.agent import fact_checker
 from  Custom_Agent.sub_agents.note_adder.agent import note_adder
-from  Browser_Search.simple_crawl4ai import url_runner
+from  Custom_Agent.Browser_Search.simple_crawl4ai import url_runner
+from  Custom_Agent.Docling.vlm_parser import doc_parser 
 
 # Full runnable code for the StoryFlowAgent example
 import logging
@@ -317,9 +318,15 @@ script_creator_agent_instance = script_creator(
     note_adder=note_adder,
 )
 
+document = "langchain_short.pdf"
+doc_1 = doc_parser(document)
+support_doc_list = [doc_1]
+
 # --- Setup Runner and Session ---
 session_service = InMemorySessionService()
 initial_state = {}
+initial_state["support_docs"] = support_doc_list[0] if support_doc_list else None
+
 session = session_service.create_session(
     app_name=APP_NAME,
     user_id=USER_ID,
@@ -334,21 +341,23 @@ runner = Runner(
     session_service=session_service
 )
 
-def call_agent(prompt:str):
+def call_agent(prompt:str , support_doc : list[str] ):
 
     #getting current session
-
     current_session = session_service.get_session(
         app_name=APP_NAME,
         user_id=USER_ID,
-        session_id=SESSION_ID
+        session_id=SESSION_ID,
     )
+
+    # Putting the support document in the session state
+    #current_session.state["support_docs"] = support_doc[0]
 
     if not current_session:
         logger.error("No session found. Please create a session first.")
         return None
     
-    content = types.Content(role='user', parts=[types.Part(text=f"{prompt}")])
+    content = types.Content(role='user', parts=[types.Part(text=f"{prompt}") ])
     events = runner.run(user_id=USER_ID, session_id=SESSION_ID, new_message=content)
 
     final_response = "No final response captured."
@@ -369,4 +378,4 @@ def call_agent(prompt:str):
     #print("-------------------------------\n")
 
 # --- Run the Agent ---
-call_agent("I am giving a talk on boosting productivity for modern office work. The audience will be of the age 20-50 and all professional. It should be just 2 mins long and professional and informative. ")
+call_agent("I am giving a talk on langchain for building RAG applications. The audience will be of the age 20-50 and all professional. It should be just 2 mins long and professional and informative. Plus it should be easy to follow thru. Follow the structure and content of supporting document " , support_doc = support_doc_list)
