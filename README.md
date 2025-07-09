@@ -24,3 +24,9 @@ Put the following key in .env file
 GOOGLE_API_KEY= "YOUR KEY"
 
 
+How to Run the Code?
+
+Just Run the Custom_Agent_Main.py File.
+I have placed a readymade prompt for you (in Custom_Agent_Main.py) and a supporting document to go along with it. 
+
+
